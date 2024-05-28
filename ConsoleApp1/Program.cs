@@ -354,12 +354,100 @@ Repository repository = new Repository("workers.txt");
     }
     }
 
+//Вывод в таблице
 static void PrintWorkersTable(Worker[] workers)
 {
-    Console.WriteLine("\n{0,-3} {1,-25} {2,-20} {3,-7} {4,-4} {5,-20} {6,-20}\n", "ID", "Дата добавления", "Ф.И.О.", "Возраст", "Рост", "Дата рождения", "Место рождения");
-    Console.WriteLine(new string('-', 100));
-    foreach (var worker in workers)
+    const int pageSize = 10;
+    int totalPages = (int)Math.Ceiling((double)workers.Length / pageSize);
+    int currentPage = 1;
+
+    while (true)
     {
-        Console.WriteLine("\n{0,-3} {1,-25} {2,-20} {3,-7} {4,-4} {5,-20:dd.MM.yyyy} {6,-20}\n", worker.Id, worker.RecordAdded, worker.FIO, worker.Age, worker.Height, worker.DateOfBirth, worker.PlaceOfBirth);
+        Console.Clear();
+        //Ширина и столбцы
+        int tableWidth = 130;
+        string[] headers = { "ID", "Дата добавления", "Ф.И.О.", "Возраст", "Рост", "Дата рождения", "Место рождения" };
+        int[] columnWidths = { 5, 25, 30, 10, 10, 20, 30 };
+
+        //Заголовок
+        PrintLine(tableWidth);
+        PrintRow(headers, columnWidths);
+        PrintLine(tableWidth);
+
+        //Строки текущей страницы
+        var pageWorkers = workers.Skip((currentPage - 1) * pageSize).Take(pageSize).ToArray();
+        foreach (var worker in pageWorkers)
+        {
+            string[] row = {
+                worker.Id.ToString(),
+                worker.RecordAdded.ToString("dd.MM.yyyy HH:mm:ss"),
+                worker.FIO,
+                worker.Age.ToString(),
+                worker.Height.ToString(),
+                worker.DateOfBirth.ToString("dd.MM.yyyy"),
+                worker.PlaceOfBirth
+            };
+            PrintRow(row, columnWidths);
+        }
+        PrintLine(tableWidth);
+
+        Console.WriteLine($"\nСтраница {currentPage} из {totalPages}");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Введите `W` для перехода к следующей странице, `S` для перехода к предыдущей странице, или Q для выхода.");
+        Console.ResetColor();
+
+        //управление таблицей
+        var input = Console.ReadKey();
+
+        if (input.Key == ConsoleKey.W  || input.Key == ConsoleKey.UpArrow&& currentPage < totalPages)
+        {
+            currentPage++;
+        }
+        else if (input.Key == ConsoleKey.S || input.Key == ConsoleKey.DownArrow && currentPage > 1)
+        {
+            currentPage--;
+        }
+        else if (input.Key == ConsoleKey.Q)
+        {
+            break;
+        }
     }
+}
+
+//Линии по горизонту
+static void PrintLine(int width)
+{
+    Console.ForegroundColor = ConsoleColor.Magenta;
+    Console.WriteLine(new string('-', width));
+    Console.ResetColor();
+}
+
+
+static void PrintRow(string[] columns, int[] columnWidths)
+{
+    string row = "|";
+
+    for (int i = 0; i < columns.Length; i++)
+    {
+        row += AlignCentre(columns[i], columnWidths[i]) + "|";
+        
+    }
+    Console.ForegroundColor = ConsoleColor.Blue;
+    Console.WriteLine(row);
+    Console.ResetColor();
+
+}
+
+static string AlignCentre(string text, int width)
+{
+    if (text.Length > width)
+    {
+        return text.Substring(0, width - 3) + "...";
+    }
+    if (string.IsNullOrEmpty(text))
+    {
+        return new string(' ', width);
+    }
+
+    return text.PadRight(width - (width - text.Length) / 2).PadLeft(width);
 }
