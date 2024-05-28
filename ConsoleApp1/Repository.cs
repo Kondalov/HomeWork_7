@@ -94,5 +94,53 @@ namespace ConsoleApp1
 
             return workersInRange.ToArray();
         }
+
+        /// <summary>
+        /// редактирование записей
+        /// </summary>
+        /// <param name="updatedWorker"></param>
+        public void UpdateWorker(Worker updatedWorker)
+        {
+            var workers = GetAllWorkers();
+            var workerIndex = Array.FindIndex(workers, w => w.Id == updatedWorker.Id);
+            if (workerIndex != -1)
+            {
+                workers[workerIndex] = updatedWorker;
+                File.WriteAllLines(_fileName, workers.Select(w => w.ToString()));
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Запись обновлена.");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Работник с таким ID не найден.");
+                Console.ResetColor();
+            }
+        }
+
+        /// <summary>
+        /// Генерация Записей
+        /// </summary>
+        /// <param name="numberOfRecords"></param>
+        public void GenerateRecords(int numberOfRecords)
+        {
+            var workers = GetAllWorkers().ToList();
+            int currentMaxId = workers.Any() ? workers.Max(w => w.Id) : 0;
+            for (int i = 1; i <= numberOfRecords; i++)
+            {
+                var worker = new Worker(
+                    id: ++currentMaxId,
+                    recordAdded: DateTime.Now,
+                    fio: $"Имя{i}",
+                    age: new Random().Next(20, 65),
+                    height: new Random().Next(150, 200),
+                    dateOfBirth: DateTime.Now.AddYears(-new Random().Next(20, 65)),
+                    placeOfBirth: $"Город{i}"
+                );
+                workers.Add(worker);
+            }
+            File.WriteAllLines(_fileName, workers.Select(w => w.ToString()));
+        }
     }
 }

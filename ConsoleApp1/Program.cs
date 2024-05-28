@@ -17,6 +17,8 @@ Repository repository = new Repository("workers.txt");
         Console.WriteLine("4. \tУдаление записи");
         Console.WriteLine("5. \tЗагрузка записей в диапазоне дат");
         Console.WriteLine("6. \tСортировка записей по полю");
+        Console.WriteLine("7. \tРедактирование записи");
+        Console.WriteLine("8. \tГенерация записей");
         Console.WriteLine("0. \tВыход");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Write("\nВведите номер операции: ");
@@ -214,6 +216,119 @@ Repository repository = new Repository("workers.txt");
                 }
                 PrintWorkersTable(sortedWorkers);
                 break;
+            //редактирование записей
+            case 7:
+                Console.Write("Введите ID записи для редактирования: ");
+                input = Console.ReadLine();
+
+                if (!int.TryParse(input, out int editId))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("ID должен быть числовым значением.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    var workerToEdit = repository.GetWorkerById(editId);
+                    if (workerToEdit.Equals(default(Worker)))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Работник с таким ID не найден.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    Console.Write("Введите новое Ф.И.О. (оставьте пустым для сохранения текущего значения): ");
+                    string newFio = Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(newFio) && !Regex.IsMatch(newFio, @"^[А-Яа-яA-Za-z\s]+$"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Ф.И.О. должно содержать только буквы и пробелы.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    Console.Write("Введите новый возраст (оставьте пустым для сохранения текущего значения): ");
+                    
+                    string newAgeInput = Console.ReadLine();
+                    int newAge = workerToEdit.Age;
+
+                    if (!string.IsNullOrWhiteSpace(newAgeInput) && !int.TryParse(newAgeInput, out newAge))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Возраст должен быть числовым значением.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    Console.Write("Введите новый рост (оставьте пустым для сохранения текущего значения): ");
+                    
+                    string newHeightInput = Console.ReadLine();
+                    int newHeight = workerToEdit.Height;
+                    
+                    if (!string.IsNullOrWhiteSpace(newHeightInput) && !int.TryParse(newHeightInput, out newHeight))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Рост должен быть числовым значением.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    Console.Write("Введите новую дату рождения (дд.мм.гггг) (оставьте пустым для сохранения текущего значения): ");
+                    
+                    string newDobInput = Console.ReadLine();
+                    DateTime newDob = workerToEdit.DateOfBirth;
+                    
+                    if (!string.IsNullOrWhiteSpace(newDobInput) && !DateTime.TryParseExact(newDobInput, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out newDob))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Дата рождения должна быть в формате дд.мм.гггг.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    Console.Write("Введите новое место рождения (оставьте пустым для сохранения текущего значения): ");
+                    string newPob = Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(newPob) && !Regex.IsMatch(newPob, @"^[А-Яа-яA-Za-z\s]+$"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Место рождения должно содержать только буквы и пробелы.");
+                        Console.ResetColor();
+                        break;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(newFio)) workerToEdit.FIO = newFio;
+                    if (!string.IsNullOrWhiteSpace(newAgeInput)) workerToEdit.Age = newAge;
+                    if (!string.IsNullOrWhiteSpace(newHeightInput)) workerToEdit.Height = newHeight;
+                    if (!string.IsNullOrWhiteSpace(newDobInput)) workerToEdit.DateOfBirth = newDob;
+                    if (!string.IsNullOrWhiteSpace(newPob)) workerToEdit.PlaceOfBirth = newPob;
+
+                    repository.UpdateWorker(workerToEdit);
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Запись обновлена.");
+                    Console.ResetColor();
+                }
+                break;
+            //Генерация записей
+            case 8:
+                Console.Write("Введите количество записей для генерации: ");
+                input = Console.ReadLine();
+
+                if (!int.TryParse(input, out int numberOfRecords))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Количество записей должно быть числовым значением.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    repository.GenerateRecords(numberOfRecords);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Записи сгенерированы.");
+                    Console.ResetColor();
+                }
+                break;
             //Выход
             case 0:
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -241,10 +356,10 @@ Repository repository = new Repository("workers.txt");
 
 static void PrintWorkersTable(Worker[] workers)
 {
-    Console.WriteLine("\n{0,-3} {1,-25} {2,-30} {3,-7} {4,-4} {5,-20} {6,-20}\n", "ID", "Дата добавления", "Ф.И.О.", "Возраст", "Рост", "Дата рождения", "Место рождения");
-    Console.WriteLine(new string('-', 110));
+    Console.WriteLine("\n{0,-3} {1,-25} {2,-20} {3,-7} {4,-4} {5,-20} {6,-20}\n", "ID", "Дата добавления", "Ф.И.О.", "Возраст", "Рост", "Дата рождения", "Место рождения");
+    Console.WriteLine(new string('-', 100));
     foreach (var worker in workers)
     {
-        Console.WriteLine("\n{0,-3} {1,-25} {2,-30} {3,-7} {4,-4} {5,-20:dd.MM.yyyy} {6,-20}\n", worker.Id, worker.RecordAdded, worker.FIO, worker.Age, worker.Height, worker.DateOfBirth, worker.PlaceOfBirth);
+        Console.WriteLine("\n{0,-3} {1,-25} {2,-20} {3,-7} {4,-4} {5,-20:dd.MM.yyyy} {6,-20}\n", worker.Id, worker.RecordAdded, worker.FIO, worker.Age, worker.Height, worker.DateOfBirth, worker.PlaceOfBirth);
     }
 }
