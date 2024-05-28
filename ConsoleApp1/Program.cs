@@ -397,7 +397,7 @@ static void PrintWorkersTable(Worker[] workers)
         var input = Console.ReadKey();
         Console.WriteLine();
 
-        if (input.Key == ConsoleKey.S || input.Key == ConsoleKey.DownArrow)
+        if (input.Key == ConsoleKey.W || input.Key == ConsoleKey.UpArrow)
         {
             if (currentPage < totalPages)
             {
@@ -412,7 +412,7 @@ static void PrintWorkersTable(Worker[] workers)
                 Console.ReadKey();
             }
         }
-        else if (input.Key == ConsoleKey.W || input.Key == ConsoleKey.UpArrow)
+        else if (input.Key == ConsoleKey.S || input.Key == ConsoleKey.DownArrow)
         {
             if (currentPage > 1)
             {
