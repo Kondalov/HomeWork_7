@@ -364,29 +364,27 @@ static void PrintWorkersTable(Worker[] workers)
     while (true)
     {
         Console.Clear();
-        //Ширина и столбцы
+
         int tableWidth = 130;
         string[] headers = { "ID", "Дата добавления", "Ф.И.О.", "Возраст", "Рост", "Дата рождения", "Место рождения" };
         int[] columnWidths = { 5, 25, 30, 10, 10, 20, 30 };
 
-        //Заголовок
         PrintLine(tableWidth);
         PrintRow(headers, columnWidths);
         PrintLine(tableWidth);
 
-        //Строки текущей страницы
         var pageWorkers = workers.Skip((currentPage - 1) * pageSize).Take(pageSize).ToArray();
         foreach (var worker in pageWorkers)
         {
             string[] row = {
-                worker.Id.ToString(),
-                worker.RecordAdded.ToString("dd.MM.yyyy HH:mm:ss"),
-                worker.FIO,
-                worker.Age.ToString(),
-                worker.Height.ToString(),
-                worker.DateOfBirth.ToString("dd.MM.yyyy"),
-                worker.PlaceOfBirth
-            };
+                    worker.Id.ToString(),
+                    worker.RecordAdded.ToString("dd.MM.yyyy HH:mm:ss"),
+                    worker.FIO,
+                    worker.Age.ToString(),
+                    worker.Height.ToString(),
+                    worker.DateOfBirth.ToString("dd.MM.yyyy"),
+                    worker.PlaceOfBirth
+                };
             PrintRow(row, columnWidths);
         }
         PrintLine(tableWidth);
@@ -396,16 +394,38 @@ static void PrintWorkersTable(Worker[] workers)
         Console.WriteLine("Введите `W` для перехода к следующей странице, `S` для перехода к предыдущей странице, или Q для выхода.");
         Console.ResetColor();
 
-        //управление таблицей
         var input = Console.ReadKey();
+        Console.WriteLine();
 
-        if (input.Key == ConsoleKey.W  || input.Key == ConsoleKey.UpArrow&& currentPage < totalPages)
+        if (input.Key == ConsoleKey.S || input.Key == ConsoleKey.DownArrow)
         {
-            currentPage++;
+            if (currentPage < totalPages)
+            {
+                currentPage++;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nВы достигли последней страницы\n");
+                Console.ResetColor();
+                Console.WriteLine("Нажмите любую клавишу для продолжения...");
+                Console.ReadKey();
+            }
         }
-        else if (input.Key == ConsoleKey.S || input.Key == ConsoleKey.DownArrow && currentPage > 1)
+        else if (input.Key == ConsoleKey.W || input.Key == ConsoleKey.UpArrow)
         {
-            currentPage--;
+            if (currentPage > 1)
+            {
+                currentPage--;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nВы достигли первой страницы\n");
+                Console.ResetColor();
+                Console.WriteLine("Нажмите любую клавишу для продолжения...");
+                Console.ReadKey();
+            }
         }
         else if (input.Key == ConsoleKey.Q)
         {
@@ -421,7 +441,6 @@ static void PrintLine(int width)
     Console.WriteLine(new string('-', width));
     Console.ResetColor();
 }
-
 
 static void PrintRow(string[] columns, int[] columnWidths)
 {
